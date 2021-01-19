@@ -1,4 +1,5 @@
 const express = require("express");
+const auths = require("../middleware/auth");
 
 const AdminController = require("../controllers/Admin");
 
@@ -12,19 +13,21 @@ router.post("/signup", AdminController.signup);
 router.post("/login", AdminController.login);
 
 // add a new user
+// test
+// router.post("/protected", AdminController.protect);
 
-router.post("/add-user", AdminController.addUser);
+router.post("/add-user", auths, AdminController.addUser);
 
 // fetch user route
 
-router.get("/get-users", AdminController.fetchUsers);
+router.get("/get-users", auths, AdminController.fetchUsers);
 
 // fetch a single user
 
-router.get("/user/:Id", AdminController.fetchUser);
+router.get("/get-user/:Id", auths, AdminController.fetchUser);
 
 // Delete user route
 
-router.delete("/user/:Id", AdminController.deleteUser);
+router.delete("/user/:Id", auths, AdminController.deleteUser);
 
 module.exports = router;

@@ -8,15 +8,15 @@ const router = express.Router();
 
 // Routers for the Forums
 // create forum
-SocialRouter.post("/api/v1/create-forum", auths, ForumController.addForum);
-// fetch forums
-SocialRouter.get("/api/v1/get-forums", ForumController.fetchForums);
-// fetch forum
-SocialRouter.get("/api/v1/get-forum", ForumController.fetchForum);
-// update forum
-SocialRouter.patch("/api/v1/update-forum", auths, ForumController.updateForum);
-// Delet forum
-SocialRouter.delete("/api/v1/delete-forum", auths, ForumController.deleteForum);
+// SocialRouter.post("/api/v1/create-forum", auths, ForumController.addForum);
+// // fetch forums
+// SocialRouter.get("/api/v1/get-forums", ForumController.fetchForums);
+// // fetch forum
+// SocialRouter.get("/api/v1/get-forum", ForumController.fetchForum);
+// // update forum
+// SocialRouter.patch("/api/v1/update-forum", auths, ForumController.updateForum);
+// // Delet forum
+// SocialRouter.delete("/api/v1/delete-forum", auths, ForumController.deleteForum);
 
 // Routers for the Chats
 

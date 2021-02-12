@@ -20,6 +20,10 @@ const projectSchema = new Schema({
   },
   isDraft: { type: Boolean, default: true },
   TaskId: [{ type: mongoose.Schema.Types.ObjectId, ref: "Task" }],
+  createAt: {
+    type: Date,
+    default: Date.now(),
+  },
 });
 const Project = mongoose.model("Project", projectSchema);
 

@@ -29,7 +29,9 @@ export const signup = async (req, res, next) => {
       password,
       varification_code: token,
     });
+    await user_obj.generateUid();
     await user_obj.save();
+    await user_obj.createProfile(email);
     await Email_service.send_mail({
       attributes: {
         user_email: email,
@@ -89,29 +91,25 @@ export const login = async (req, res, next) => {
 export const addUser = async (req, res, next) => {
   const { role } = req.user;
   if (role !== "admin")
-    return res.status(403).json({ message: "You are FORBIDEN" });
+    return res.status(403).json({
+      message: "You are FORBIDEN",
+    });
   try {
-    const { firstName, lastName, job, email, password } = req.body;
-
-    await User.findOne({ email: req.body.email });
-
+    const { email } = req.body;
+    const user = await User.findOne({ email: req.body.email });
     if (user) {
       return res.status(409).json({
         message: "User with this email already exixts",
       });
     }
-    const user = new User({
-      firstName: firstName,
-      lastName: lastName,
-      job: job,
-      email: email,
-      password: password,
-    });
-    await user.save();
+    // const user = new User({
+    //   email: email,
+    // });
+    // await user.save();
     await Email_service.send_mail({
       attributes: {
         user_email: email,
-        user_name: lastName,
+        // user_name: lastName,
       },
       template_id: "welcom",
     });
@@ -170,7 +168,9 @@ export const fetchUser = async (req, res, next) => {
 export const deleteUser = async (req, res, next) => {
   const { role } = req.user;
   if (role !== "admin")
-    return res.status(403).json({ message: "You are FORBIDEN" });
+    return res.status(403).json({
+      message: "You are FORBIDEN",
+    });
   try {
     const UserId = req.params.Id;
     const user = await User.findOne(UserId);
@@ -180,6 +180,7 @@ export const deleteUser = async (req, res, next) => {
       });
     }
     await user.updateOne({ isDlelete: true });
+    await user.deactivateProfile();
     return res.status(200).json({
       message: "User deleted sucessfully",
     });

@@ -1,5 +1,5 @@
 import Project from "../models/Project";
-import forum from "../models/forum";
+// import forum from "../models/forum";
 
 export const addProject = async (req, res, next) => {
   const { role } = req.user.role;
@@ -58,12 +58,18 @@ export const fetchProject = async (req, res, next) => {
   try {
     const ProjId = req.params.Id;
     await Project.findById(ProjId);
-    if (!Project) return res.status(404).json({ message: "project not found" });
-    return res.status(200).json({ Project });
+    if (!Project)
+      return res.status(404).json({
+        message: "project not found",
+      });
+    return res.status(200).json({
+      Project,
+    });
   } catch (error) {
-    return res
-      .status(error.code || 500)
-      .json({ message: error.message, success: false });
+    return res.status(error.code || 500).json({
+      message: error.message,
+      success: false,
+    });
   }
 };
 export const updateProject = async (req, res, next) => {
@@ -71,10 +77,14 @@ export const updateProject = async (req, res, next) => {
     const ProjId = req.params.Id;
     await Project.findByIdAndUpdate(ProjId);
     if (error)
-      return res
-        .status(403)
-        .json({ message: "Could not sucessfully update the project" });
-    return res.status(200).json({ message: "project updated sucessfully" });
+      return res.status(403).json({
+        status: 404,
+        message: "Could not sucessfully update the project",
+      });
+    return res.status(200).json({
+      status: 200,
+      message: "project updated sucessfully",
+    });
   } catch (error) {
     return res
       .status(error.code || 500)

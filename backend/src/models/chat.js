@@ -16,6 +16,10 @@ const chatSchema = new Schema({
     required: true,
     ref: "User",
   },
+  name: {
+    type: String,
+    default: null,
+  },
 });
 const Chat = mongoose.model("Chat", chatSchema);
 export default Chat;

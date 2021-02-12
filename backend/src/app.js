@@ -24,6 +24,7 @@ app.use((req, res, next) => {
   err.status = 404;
   next(err);
 });
+
 app.use((err, req, res, next) => {
   const status = err.status || 500;
   res.status(status).json({ error: { message: err.message } });

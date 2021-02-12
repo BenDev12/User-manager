@@ -2,6 +2,8 @@ import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import config from "../config";
+import Profile from "./profile";
+import randomstring from "randomstring";
 
 const Schema = mongoose.Schema;
 
@@ -15,6 +17,9 @@ const UserSchema = new Schema({
     type: String,
     required: true,
     trim: true,
+  },
+  uid: {
+    type: String,
   },
   username: {
     type: String,
@@ -57,6 +62,14 @@ UserSchema.pre("save", async function (next) {
     next(error);
   }
 });
+UserSchema.methods.generateUid = async function () {
+  const user = this;
+  user.uid = randomstring.generate({
+    length: 16,
+    charset: "numeric",
+  });
+  return user.uid;
+};
 
 UserSchema.methods.comparePassword = async function (password) {
   // console.log(password);
@@ -65,6 +78,24 @@ UserSchema.methods.comparePassword = async function (password) {
   });
 };
 
+UserSchema.methods.createProfile = async function (email) {
+  const user = this;
+  var profile = new Profile({ email: email, user_id: user.uid });
+  await profile.generateIdentifier();
+  await profile.save();
+  return profile;
+};
+UserSchema.methods.getProfile = async function () {
+  const user = this;
+  var profile = await Profile.findOne({});
+};
+UserSchema.methods.removeProfile = async function () {
+  const user = this;
+  const payload = { email: email, user_id: user.uid };
+  var profile = await Profile.findOne(payload);
+  if (!profile) return { Error: "Profile does not exist" };
+  await Profile.deleteOne(payload);
+};
 UserSchema.methods.getSignedToken = () => {
   console.log(user.firstName);
   console.log(user.email);

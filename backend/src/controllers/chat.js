@@ -1,15 +1,30 @@
 import Chat from "../models/chat";
 import chat from "../models/chat";
+import * as io from "socket.io";
 
 export const addChat = async (req, res, next) => {
+  const name = req.user.name;
+  const userId = req.user.id;
   try {
     const { message } = req.body;
     const chat = new Chat({
       message,
-      author: req.user.name,
+      author: userId,
+      name: name,
     });
+
     await chat.save();
-    return res.status(200).json({ message: "Message sucessfully sent" });
+    // const room = `${chat.model_id}#${chat.user}`;
+    // io.sockets.in(room).emit("newmessage", JSON.stringify(chat));
+    io.on("connection", (socket) => {
+      socket.on("message", (chat) => {
+        socket.broadcast.emit("message", chat);
+      });
+    });
+    return res.status(200).json({
+      message: "Message sucessfully sent",
+      data: chat,
+    });
   } catch (error) {
     error.status = 400;
     next(error);

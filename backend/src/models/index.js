@@ -87,7 +87,8 @@ UserSchema.methods.createProfile = async function (email) {
 };
 UserSchema.methods.getProfile = async function () {
   const user = this;
-  var profile = await Profile.findOne({});
+  var profile = await Profile.findOne({ user_id: user.uid });
+  return profile;
 };
 UserSchema.methods.removeProfile = async function () {
   const user = this;
@@ -96,29 +97,26 @@ UserSchema.methods.removeProfile = async function () {
   if (!profile) return { Error: "Profile does not exist" };
   await Profile.deleteOne(payload);
 };
-UserSchema.methods.getSignedToken = () => {
-  console.log(user.firstName);
-  console.log(user.email);
+UserSchema.methods.getSignedToken = (user) => {
   return jwt.sign(
     {
-      id: this.username,
-      email: this.email,
-      name: this.firstName,
-      role: this.role,
+      id: user._id,
+      email: user.email,
+      name: user.firstName,
+      role: user.role,
     },
     config.jwt_secret,
     { expiresIn: "1hr" }
   );
 };
 
-UserSchema.methods.getRefreshToken = () => {
-  console.log(user.email);
+UserSchema.methods.getRefreshToken = (user) => {
   return jwt.sign(
     {
-      id: this.username,
-      email: this.email,
-      name: this.firstName,
-      role: this.role,
+      id: user._id,
+      email: user.email,
+      name: user.firstName,
+      role: user.role,
     },
     config.refresh_secret,
     { expiresIn: "1hr" }

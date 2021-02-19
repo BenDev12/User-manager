@@ -6,9 +6,21 @@ import AdminRouter from "./routes/Admin";
 import Social from "./routes/Social";
 import ProjectRouter from "./routes/Project";
 import db from "./db";
-const app = express();
 
+import { createServer } from "http";
+import { Server } from "socket.io";
+
+const app = express();
+const server = createServer(app);
 const PORT = process.env.PORT || 4000;
+
+const io = new Server(server, {
+  // ...
+});
+
+io.on("connection", (socket) => {
+  console.log(socket.id);
+});
 
 app.use(bodyParser.json());
 app.use(cors());
@@ -30,4 +42,4 @@ app.use((err, req, res, next) => {
   res.status(status).json({ error: { message: err.message } });
 });
 
-app.listen(PORT, console.log(`Server is running on PORT ${PORT}`));
+server.listen(PORT, console.log(`Server is running on PORT ${PORT}`));

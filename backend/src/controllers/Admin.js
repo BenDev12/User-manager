@@ -1,6 +1,9 @@
+// import { response } from "express";
 import User from "../models/index";
+import Inviation from "../models/invitations";
 import Email_service from "../providers/email/email_provider";
 import VarificationCode from "../utils/code";
+import randomstring from "randomstring";
 
 // POST/signup
 // signup with firstName,lastName,email,password
@@ -69,11 +72,11 @@ export const login = async (req, res, next) => {
   try {
     const isMatch = await user.comparePassword(password);
     if (!isMatch) return res.status(401).json({ msg: "Invalid credentials" });
-    const authToken = await user.getSignedToken();
-    const refreshToken = await user.getRefreshToken();
+    const authToken = await user.getSignedToken(user);
+    const refreshToken = await user.getRefreshToken(user);
     // await refreshTokens.push(refreshToken);
     return res.status(200).json({
-      status: 1,
+      status: 200,
       // data: user,
       authToken,
       refreshToken,
@@ -89,29 +92,41 @@ export const login = async (req, res, next) => {
 // POST/AddUser
 
 export const addUser = async (req, res, next) => {
-  const { role } = req.user;
+  // const { role } = req.user;
+  const role = "admin";
   if (role !== "admin")
     return res.status(403).json({
-      message: "You are FORBIDEN",
+      message: "You are FORBIDEN request for more previllage from Admin",
     });
   try {
     const { email } = req.body;
-    const user = await User.findOne({ email: req.body.email });
-    if (user) {
-      return res.status(409).json({
-        message: "User with this email already exixts",
+    const exist = await Inviation.findOne({ to: email });
+    if (exist)
+      return res.status(400).json({
+        status: 400,
+        message: "User already invited",
       });
-    }
-    // const user = new User({
-    //   email: email,
-    // });
-    // await user.save();
+    const token = randomstring.generate({
+      length: 16,
+      charset: "numeric",
+    });
+    const invitation = new Inviation({
+      to: email,
+      invited_by: req.user.id,
+      user: req.user.name,
+      invitation_token: token,
+    });
+    await invitation.save();
     await Email_service.send_mail({
       attributes: {
         user_email: email,
         // user_name: lastName,
       },
-      template_id: "welcom",
+      template_id: "welcome",
+    });
+    return res.status(200).json({
+      status: 200,
+      message: `Invitation to ${email} has been sent sucessfully`,
     });
   } catch (error) {
     error.status = 400;
